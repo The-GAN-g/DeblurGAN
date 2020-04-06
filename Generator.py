@@ -4,6 +4,18 @@ import torch
 
 class ResnetBlock(nn.Module):
     """RESNET Block"""
+    
+    """
+    Parameters:
+    Instantiate a PyTorch Resnet Block using Sequential API.
+        input: Input tensor
+        filters: Number of filters to use
+        kernel_size: Shape of the kernel for the convolution
+        strides: Shape of the strides for the convolution
+        use_dropout: Boolean value to determine the use of dropout
+        return: Pytorch Model
+    """
+    
     def __init__(self, dim, padding_type, norm_layer, use_dropout):
         super(ResnetBlock, self).__init__()
         
@@ -28,6 +40,7 @@ class ResnetBlock(nn.Module):
         self.conv_block = nn.Sequential(*blocks)
     
     def forward(self, x):
+        # Two convolution layers followed by a direct connection between input and output
             out = x + self.conv_block(x)
             return out
         
@@ -96,6 +109,7 @@ class Generator(nn.Module):
         # Add direct connection from input to output and recenter to [-1, 1]
         if self.learn_residual:
             # output = input + output
+            #             https://pytorch.org/docs/stable/torch.html#torch.clamp
             output = torch.clamp(input + output, min=-1, max=1)
         return output
     
