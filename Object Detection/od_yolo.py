@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue May  5 20:48:36 2020
-
-@author: Amogh
-"""
-
 # import required packages
 import cv2
 import argparse
