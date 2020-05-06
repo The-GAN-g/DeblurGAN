@@ -1,35 +1,33 @@
-import torch.nn as nn 
-import torch
-#import torch.nn.functional as F
+import torch.nn as nn
 import numpy as np
+import functools
+
 
 class Discriminator(nn.Module):   
-    """Defines a PatchGAN discriminator"""
-    def __init__(self, input_nc = 3, ndf=64, n_layers=3, norm_layer=nn.BatchNorm2d, use_sigmoid=False, gpu_ids=[],
-                 use_parallel=True):  
-        super(Discriminator, self).__init__()
-        
+    """
+    Defines a PatchGAN discriminator
+    """
+    def __init__(self, input_nc = 3, ndf=64, n_layers=3, norm_layer=nn.BatchNorm2d, use_sigmoid=False):
         """
          Parameters:
             input_nc (int)  -- the number of channels in input images. For color images this is 3.
             ndf (int)       -- the number of filters in the last conv layer
             n_layers (int)  -- the number of conv layers in the discriminator
             norm_layer      -- normalization layer (can be nn.BatchNorm2d or nn.InstanceNorm2d)
+            use_sigmoid     -- use sigmoid or not
         """
-        
-#         ndf = 64
-#         output_nc = 3
-#         input_shape_discriminator = (256, 256, output_nc)    
-#         n_layers = 3
-#         use_sigmoid = False
-#         gpu_ids = []
-#         norm_layer = nn.BatchNorm2d
-#         ndf = 64
-#         input_nc = 3
-#         use_parallel = True
 
-        kw = 4 # kernel size
-        padw = int(np.ceil((kw - 1) / 2)) # 2
+        super(Discriminator, self).__init__()
+
+        if type(norm_layer) == functools.partial:
+            use_bias = norm_layer.func == nn.InstanceNorm2d
+            print("Log (Discriminator): Used Bias for Instance Normalization")
+        else:
+            print("Log (Discriminator): Used Bias for Batch Normalization")
+            use_bias = norm_layer == nn.InstanceNorm2d
+
+        kw = 4  # kernel size
+        padw = int(np.ceil((kw - 1) / 2))  # 2
 
         sequence = [
             nn.Conv2d(input_nc, ndf, kernel_size=kw, stride=2, padding=padw),
@@ -38,12 +36,13 @@ class Discriminator(nn.Module):
         
         nf_mult = 1
         nf_mult_prev = 1
-        for n in range(1, n_layers): # runs for 2 iterations
+
+        # runs for 2 iterations
+        for n in range(1, n_layers):
             nf_mult_prev = nf_mult
-            nf_mult = min(2 ** n, 8) # n_layers = 3
+            nf_mult = min(2 ** n, 8)  # n_layers = 3
             sequence += [
-                nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult,
-                          kernel_size=kw, stride=2, padding=padw), # default bias value is True
+                nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult, kernel_size = kw, stride = 2, padding = padw, bias = use_bias),
                 norm_layer(ndf * nf_mult),
                 nn.LeakyReLU(0.2, True)
             ]
@@ -52,7 +51,7 @@ class Discriminator(nn.Module):
         nf_mult_prev = nf_mult
         nf_mult = min(2 ** n_layers, 8) 
         sequence += [
-            nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult, kernel_size=kw, stride=1, padding=padw),
+            nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult, kernel_size = kw, stride = 1, padding = padw, bias = use_bias),
             norm_layer(ndf * nf_mult),
             nn.LeakyReLU(0.2, True)
         ]
@@ -63,14 +62,10 @@ class Discriminator(nn.Module):
             sequence += [nn.Sigmoid()]
 
         self.model = nn.Sequential(*sequence)
-        
+
+
     def forward(self, input):
-        if len(self.gpu_ids) and isinstance(input.data, torch.cuda.FloatTensor) and self.use_parallel:
-            return nn.parallel.data_parallel(self.model, input, self.gpu_ids)
-        else:
-            return self.model(input)        
-
-if __name__ == '__main__':
-    d = Discriminator()
-    print(d)
-
+        """
+        Forward propagation of the network
+        """
+        return self.model(input)
