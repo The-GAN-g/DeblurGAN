@@ -8,5 +8,5 @@ class Constants:
     display_freq = 1000
     batchSize = 4
     print_every = 50
-    save_freq = 50
+    save_freq = 20
     isTrain = True
