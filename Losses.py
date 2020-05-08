@@ -3,22 +3,14 @@ import torch.nn as nn
 import torch
 from torch.autograd import Variable
 
-def real_mse_loss(y_true, y_pred):
-    # how close is the produced output from being "real"?
+def mse_loss(y_true, y_pred):
     criterion = torch.nn.MSELoss()
     # calculate loss
     loss = criterion(y_pred,y_true)
     return loss
 
 
-def fake_mse_loss(y_true, y_pred):
-    # how close is the produced output from being "fake"?
-    criterion = torch.nn.MSELoss()
-    # calculate loss
-    loss = criterion(y_pred,y_true)
-    return loss
-
-
+# Simplified version of the DeblurGAN paper(https://github.com/KupynOrest/DeblurGAN)
 def perceptual_loss(y_true, y_pred):
     conv_3_3_layer = 14
     cnn = models.vgg19(pretrained=True).features
@@ -36,7 +28,7 @@ def perceptual_loss(y_true, y_pred):
     loss = criterion(fake, f_real)
     return loss
 
-
+# Function is taken from the DeblurGAN paper(https://github.com/KupynOrest/DeblurGAN)
 def calc_gradient_penalty(D, real_data, fake_data):
     alpha = torch.rand(1, 1)
     alpha = alpha.expand(real_data.size())

@@ -2,6 +2,7 @@ import torch.nn as nn
 import torch
 import functools
 
+# The Generator and Resnet blocks are inspired by the DeblurGAN Paper(https://github.com/KupynOrest/DeblurGAN)
 class ResnetBlock(nn.Module):
     """
     RESNET Generator
@@ -15,7 +16,7 @@ class ResnetBlock(nn.Module):
         use_dropout: Boolean value to determine the use of dropout
         return: Pytorch Model
     """
-    def __init__(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+    def __init__(self, dim, norm_layer, use_dropout, use_bias):
         super(ResnetBlock, self).__init__()
         
         blocks = [ 
@@ -49,7 +50,7 @@ class Generator(nn.Module):
     Defines Generator with 9 RESNET blocks
     """
     def __init__(self, input_nc = 3, ngf = 64, n_layers=3, norm_layer=nn.BatchNorm2d, use_dropout=True,
-                 n_blocks = 9, learn_residual=False, padding_type='reflect'):
+                 n_blocks = 9, learn_residual=True):
 
         assert (n_blocks >= 0)
         super(Generator, self).__init__()
@@ -61,6 +62,8 @@ class Generator(nn.Module):
         else:
             print("Log (Generator): Used Bias for Batch Normalization")
             use_bias = norm_layer == nn.InstanceNorm2d
+        
+        #use_bias = True
 
         model = [
             nn.ReflectionPad2d(3),
@@ -83,7 +86,7 @@ class Generator(nn.Module):
         # Apply 9 ResNet blocks
         for i in range(n_blocks):
             model += [
-                ResnetBlock(256, padding_type=padding_type, norm_layer=norm_layer, use_dropout=use_dropout, use_bias=use_bias)
+                ResnetBlock(256, norm_layer=norm_layer, use_dropout=use_dropout, use_bias=use_bias)
             ]
           
         # Decrease filter number to 3 (RGB)

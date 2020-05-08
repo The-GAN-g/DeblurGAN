@@ -2,7 +2,7 @@ import torch.nn as nn
 import numpy as np
 import functools
 
-
+# The Discriminator is inspired by the DeblurGAN Paper(https://github.com/KupynOrest/DeblurGAN)
 class Discriminator(nn.Module):   
     """
     Defines a PatchGAN discriminator
@@ -26,6 +26,8 @@ class Discriminator(nn.Module):
             print("Log (Discriminator): Used Bias for Batch Normalization")
             use_bias = norm_layer == nn.InstanceNorm2d
 
+        #use_bias = True
+        
         kw = 4  # kernel size
         padw = int(np.ceil((kw - 1) / 2))  # 2
 
