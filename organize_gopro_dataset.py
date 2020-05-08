@@ -4,6 +4,7 @@ from shutil import copyfile
 import click
 import tqdm
 
+# This code is to organize the GoPro dataset. It has been taken from https://github.com/RaphaelMeudec/deblur-gan
 
 @click.command()
 @click.option('--dir_in', default='GOPRO_Large')
