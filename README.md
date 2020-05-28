@@ -32,7 +32,7 @@ Motion blur in videos and images is a fundamental problem in computer vision whi
 
 9) **test.py**: Consists the code for testing the model.
 
-10)**organize_gopro_dataset.py**: Consists of code to organize the dataset into appropriate folders.
+10) **organize_gopro_dataset.py**: Consists of code to organize the dataset into appropriate folders.
 
 ### System Requirements:
 
